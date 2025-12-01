@@ -78,17 +78,14 @@ public class InMemoryRepository implements  PostRepository{
     public List<Post> search(String q, String sortBy, String order, int page, int size) {
         String query = q.toLowerCase();
 
-        // MULTI KEYWORD SUPPORT
         String[] keywords = query.split("\\s+");
 
-        // FILTER
         List<Post> filtered = store.values().stream()
                 .filter(post -> {
                     String title = Optional.ofNullable(post.getTitle()).orElse("").toLowerCase();
                     String content = Optional.ofNullable(post.getContent()).orElse("").toLowerCase();
                     String author = Optional.ofNullable(post.getOwner()).orElse("").toLowerCase();
 
-                    // every keyword must match at least one field
                     return Arrays.stream(keywords).allMatch(kw ->
                             title.contains(kw) ||
                                     content.contains(kw) ||
@@ -97,13 +94,12 @@ public class InMemoryRepository implements  PostRepository{
                 })
                 .collect(Collectors.toList());
 
-        // SORTING
         Comparator<Post> comparator;
 
         switch (sortBy.toLowerCase()) {
             case "title" -> comparator = Comparator.comparing(Post::getTitle, String.CASE_INSENSITIVE_ORDER);
             case "author" -> comparator = Comparator.comparing(Post::getOwner, String.CASE_INSENSITIVE_ORDER);
-            default -> comparator = Comparator.comparing(Post::getCreatedAt); // default = createdAt
+            default -> comparator = Comparator.comparing(Post::getCreatedAt);
         }
 
         if (order.equalsIgnoreCase("desc")) {
@@ -112,11 +108,10 @@ public class InMemoryRepository implements  PostRepository{
 
         filtered.sort(comparator);
 
-        // PAGINATION
         int from = page * size;
         int to = Math.min(from + size, filtered.size());
 
-        if (from >= filtered.size()) return List.of(); // empty page
+        if (from >= filtered.size()) return List.of();
 
         return filtered.subList(from, to);
     }

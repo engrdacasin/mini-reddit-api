@@ -7,6 +7,7 @@ import com.example.JuniorInterview.dto.CreateCommentRequest;
 import com.example.JuniorInterview.dto.CreatePostRequest;
 import com.example.JuniorInterview.dto.UpdateCommentRequest;
 import com.example.JuniorInterview.dto.UpdatePostRequest;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
+@SecurityRequirement(name = "basicAuth")
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
@@ -61,7 +62,7 @@ public class PostController {
     }
 
     @PostMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<Post> create(@Validated @RequestPart("post") CreatePostRequest req,
+    public ResponseEntity<Post> create(@Validated  @ModelAttribute CreatePostRequest req,
                                        @RequestPart(value = "image", required = false) MultipartFile image,
                                        Authentication auth) {
         Post created = service.createPost(req, image, auth.getName());
